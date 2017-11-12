@@ -180,6 +180,7 @@
               <arguments>run watch</arguments>
               <environmentVariables>
                 <NODE_ENV>production</NODE_ENV>
+                <USE_LIVERELOAD>true</USE_LIVERELOAD>
               </environmentVariables>
             </configuration>
           </execution>
