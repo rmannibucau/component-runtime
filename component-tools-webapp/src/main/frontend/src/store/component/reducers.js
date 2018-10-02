@@ -21,10 +21,16 @@ import {
 	GET_COMPONENT_OK,
 	BACK_TO_COMPONENT_EDIT,
 	SUBMIT_COMPONENT,
+	UPDATE_HELP,
 } from '../constants';
 
 export default (state = {}, action) => {
 	switch (action.type) {
+	    case UPDATE_HELP:
+	        return {
+	            ...state,
+	            help: action.help,
+	        };
 		case GET_COMPONENT_LOADING:
 			return {
 				...state,
@@ -43,7 +49,7 @@ export default (state = {}, action) => {
 				uiSpec: {
 					...state.uiSpec,
 					errors: action.errors,
-				}
+				},
 			};
 		case CHANGE_COMPONENT_PROPERTIES:
 			return {

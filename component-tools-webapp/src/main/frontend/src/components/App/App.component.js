@@ -26,6 +26,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
+    this.onHelp = this.onHelp.bind(this);
   }
 
   notificationLeaveFn(notification) {
@@ -34,10 +35,13 @@ export default class App extends React.Component {
 
   render() {
     const header = (
-      <HeaderBar logo={{ isFull: true }} brand={{
-        id: 'header-brand',
-        label: 'Talend Component Kit Web Tester'
-      }}/>
+      <HeaderBar
+        logo={{ isFull: true }}
+        brand={{
+          id: 'header-brand',
+          label: 'Talend Component Kit Web Tester'
+        }}
+      />
     );
     const menu = (<Menu />);
 

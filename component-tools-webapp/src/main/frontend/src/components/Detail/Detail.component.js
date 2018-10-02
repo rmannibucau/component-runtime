@@ -15,10 +15,13 @@
  */
 
 import React from 'react';
+import { Action } from '@talend/react-components';
 import { Inject, cmfConnect } from '@talend/react-cmf';
 import errors from '@talend/react-forms/lib/UIForm/utils/errors';
 import kit from '@talend/react-containers/lib/ComponentForm/kit';
 import service from '@talend/react-containers/lib/ComponentForm/kit/defaultRegistry';
+
+import theme from './Detail.scss';
 
 function NoSelectedComponent() {
 	return (
@@ -41,6 +44,25 @@ function parseQuery() {
 }
 
 function Detail(props) {
+    const componentId = (props.componentId || {});
+    const helpToggle = !componentId.id || !componentId.family || props.configurationSelected ? undefined : (
+        <div className="col-md-12">
+            <Action
+              label={props.help ? 'Hide Help' : 'Show Help'}
+              icon="talend-question-circle"
+              onClick={() => props.toggleHelp({ toggled: !props.help, id: componentId.id })}
+            />
+        </div>
+    );
+    if (props.help) {
+        return (
+            <div className={theme.Detail}>
+                <div className={`col-md-6 ${theme.Help}`} dangerouslySetInnerHTML={{__html: props.help}} />
+                <div className="col-md-6">{helpToggle}</div>
+            </div>
+        );
+    }
+
     let notSelected = null;
     let submitted = null;
     let form = null;
@@ -87,6 +109,7 @@ function Detail(props) {
                 {form}
             </div>
             <div className="col-md-6">
+                {helpToggle}
                 {submitted}
             </div>
         </div>

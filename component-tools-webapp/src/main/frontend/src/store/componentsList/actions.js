@@ -22,6 +22,7 @@ import {
   FAMILY_RELOADING,
   FAMILY_RELOADED,
   FAMILY_RELOADED_ERROR,
+  UPDATE_HELP,
 } from '../constants';
 
 function nameComparator() {
@@ -256,9 +257,12 @@ function familyIsReloading() {
 }
 
 export function getComponentsList(data) {
-	const configuration = (data && data.configuration) || false;
+  const configuration = (data && data.configuration) || false;
   return dispatch => {
     dispatch(isLoadingComponentsList(configuration));
+    dispatch({
+      type: UPDATE_HELP,
+    });
     fetch(`api/v1/application/index?configuration=${configuration}`)
       .then(resp => resp.json())
       .then(data => data.components ? createTree(data.components, dispatch) : createConfigTree(data, dispatch))

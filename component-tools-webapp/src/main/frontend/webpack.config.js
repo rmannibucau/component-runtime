@@ -24,15 +24,16 @@ const extractCSS = new ExtractTextPlugin({ filename: '[name]-[hash].css' });
 
 const SASS_DATA = `@import '~@talend/bootstrap-theme/src/theme/guidelines';
 `;
+const dev = process.env.NODE_ENV === 'development';
 
 function getCommonStyleLoaders(enableModules) {
   let cssOptions = {};
   if (enableModules) {
-    cssOptions = { sourceMap: true, modules: true, importLoaders: 1, localIdentName: '[name]__[local]___[hash:base64:5]' };
+    cssOptions = { sourceMap: dev, modules: true, importLoaders: 1, localIdentName: '[name]__[local]___[hash:base64:5]' };
   }
   return [
     { loader: 'css-loader', options: cssOptions },
-    { loader: 'postcss-loader', options: { sourceMap: true, plugins: () => [autoprefixer({ browsers: ['last 2 versions'] })] } },
+    { loader: 'postcss-loader', options: { sourceMap: dev, plugins: () => [autoprefixer({ browsers: ['last 2 versions'] })] } },
     { loader: 'resolve-url-loader' },
   ];
 }
@@ -43,7 +44,7 @@ function getSassLoaders(enableModules) {
 
 module.exports = {
   entry: ['babel-polyfill', 'whatwg-fetch', './src/index.js'],
-  devtool: process.env.NODE_ENV === 'development' ? 'source-map' : undefined,
+  devtool: dev ? 'source-map' : undefined,
   output: {
     path: `${__dirname}/dist`,
     publicPath: '/',

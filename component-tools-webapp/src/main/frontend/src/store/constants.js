@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 export const GET_COMPONENT_LIST_LOADING = 'GET_COMPONENT_LIST_LOADING';
 export const GET_COMPONENT_LIST_OK = 'GET_COMPONENT_LIST_OK';
 export const GET_COMPONENT_LIST_ERROR = 'GET_COMPONENT_LIST_ERROR';
@@ -29,6 +28,7 @@ export const GET_COMPONENT_OK = 'GET_COMPONENT_OK';
 export const GET_COMPONENT_ERROR = 'GET_COMPONENT_ERROR';
 export const BACK_TO_COMPONENT_EDIT = 'BACK_TO_COMPONENT_EDIT';
 export const SUBMIT_COMPONENT = 'SUBMIT_COMPONENT';
+export const UPDATE_HELP = 'UPDATE_HELP';
 
 export const GET_ICON = 'GET_ICON';
 

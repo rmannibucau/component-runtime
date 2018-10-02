@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+import asciidoctorInstance from '../../tool/asciidoctor';
 import {
     ADD_NOTIFICATION,
 	CHANGE_COMPONENT_ERRORS,
@@ -25,6 +25,7 @@ import {
 	TOGGLE_COMPONENT_NODE,
 	BACK_TO_COMPONENT_EDIT,
 	SUBMIT_COMPONENT,
+	UPDATE_HELP,
 } from '../constants';
 
 export function isLoadingComponent() {
@@ -79,11 +80,34 @@ export function submitComponent(event, properties) {
 	};
 }
 
-export function onNotification( notification) {
+export function onNotification(notification) {
 	return {
 		type: ADD_NOTIFICATION,
 		notification,
 	};
+}
+
+export function onToggleHelp({ toggled, id }) {
+  return dispatch => {
+    if (!toggled || !id) {
+        return dispatch({
+          type: UPDATE_HELP,
+          help: undefined,
+        });
+    }
+    fetch(`/api/v1/documentation/component/${id}`)
+      .then(resp => resp.json())
+      .then(data => data.source)
+      .then(src => asciidoctorInstance.convert(src))
+      .then(help => dispatch({
+        type: UPDATE_HELP,
+        help,
+      }))
+      .catch(error => dispatch({
+        type: UPDATE_HELP,
+        help: `<em>${JSON.stringify(error, ' ', 2)}</em>`,
+      }));
+  };
 }
 
 export function selectNode(node) {
@@ -94,7 +118,13 @@ export function selectNode(node) {
 }
 
 export function selectComponent(node) {
-	return selectNode(node);
+	return dispatch => {
+	    dispatch({
+	        type: UPDATE_HELP,
+	        help: undefined,
+	    });
+	    dispatch(selectNode(node));
+	};
 }
 
 export function toggleComponent(node) {

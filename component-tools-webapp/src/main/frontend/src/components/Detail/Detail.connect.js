@@ -21,6 +21,7 @@ import {
 	backToComponentEdit,
 	onComponentPropertiesChange,
 	onComponentErrorsChange,
+	onToggleHelp,
 	submitComponent,
 	onNotification,
 } from '../../store/component/actions';
@@ -29,9 +30,12 @@ import startSaga from './Detail.saga';
 import Detail from './Detail.component';
 
 function mapStateToProps(state) {
+    const menu = state.app.componentsList || {};
 	return {
 		definitionURL: get(state, 'app.componentsList.selectedNode.$$detail'),
 		...state.app.component,
+		componentId: menu.selectedId,
+		configurationSelected: menu.configurationSelected,
 	}
 }
 
@@ -40,6 +44,7 @@ function mapDispatchToProps(dispatch) {
 		backToComponentEdit: bindActionCreators(backToComponentEdit, dispatch),
 		onChange: bindActionCreators(onComponentPropertiesChange, dispatch),
 		onErrors: bindActionCreators(onComponentErrorsChange, dispatch),
+		toggleHelp: bindActionCreators(onToggleHelp, dispatch),
 		onNotification: bindActionCreators(onNotification, dispatch),
 	};
 }
