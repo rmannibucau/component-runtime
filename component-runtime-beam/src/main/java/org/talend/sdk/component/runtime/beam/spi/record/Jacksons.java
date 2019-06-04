@@ -33,7 +33,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.util.TokenBuffer;
 
 // copy of avro jacksonutils - until spark releases its master and upgrades avro
-final class Jacksons {
+public final class Jacksons {
 
     static final String BYTES_CHARSET = "ISO-8859-1";
 
@@ -90,8 +90,8 @@ final class Jacksons {
         }
     }
 
-    public static Object toObject(final JsonNode jsonNode) {
-        return toObject(jsonNode, null);
+    public static Object toObject(final Object jsonNode) {
+        return toObject(JsonNode.class.cast(jsonNode), null);
     }
 
     public static Object toObject(final JsonNode jsonNode, final Schema schema) {

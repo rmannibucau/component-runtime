@@ -15,14 +15,10 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
-import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static org.apache.avro.Schema.Type.NULL;
-import static org.apache.avro.Schema.Type.UNION;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.sanitizeConnectionName;
 import static org.talend.sdk.component.runtime.beam.avro.AvroSchemas.unwrapUnion;
-import static org.talend.sdk.component.runtime.beam.spi.record.Jacksons.toJsonNode;
 import static org.talend.sdk.component.runtime.beam.spi.record.SchemaIdGenerator.generateRecordName;
 
 import java.nio.ByteBuffer;
@@ -40,15 +36,13 @@ import org.apache.avro.generic.IndexedRecord;
 import org.apache.avro.util.Utf8;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
+import org.talend.sdk.component.runtime.beam.spi.record.avro.AvroRecordBuilder;
 import org.talend.sdk.component.runtime.manager.service.api.Unwrappable;
 import org.talend.sdk.component.runtime.record.RecordConverters;
 
 public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     private static final RecordConverters RECORD_CONVERTERS = new RecordConverters();
-
-    private static final org.apache.avro.Schema NULL_SCHEMA =
-            org.apache.avro.Schema.create(org.apache.avro.Schema.Type.NULL);
 
     @JsonbTransient
     private final IndexedRecord delegate;
@@ -63,11 +57,8 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
 
     public AvroRecord(final Record record) {
         final List<Schema.Entry> entries = record.getSchema().getEntries();
-        final List<org.apache.avro.Schema.Field> fields = entries
-                .stream()
-                .map(entry -> new org.apache.avro.Schema.Field(entry.getName(), toSchema(entry), entry.getComment(),
-                        toJsonNode(entry.getDefaultValue())))
-                .collect(toList());
+        final List<org.apache.avro.Schema.Field> fields =
+                entries.stream().map(entry -> AvroRecordBuilder.INSTANCE.toField(entry, null)).collect(toList());
         final org.apache.avro.Schema avroSchema =
                 org.apache.avro.Schema.createRecord(generateRecordName(fields), null, null, false);
         avroSchema.setFields(fields);
@@ -203,33 +194,6 @@ public class AvroRecord implements Record, AvroPropertyMapper, Unwrappable {
             return expectedType.cast(value.toString());
         }
         return expectedType.cast(value);
-    }
-
-    private org.apache.avro.Schema toSchema(final Schema.Entry entry) {
-        final org.apache.avro.Schema schema = doToSchema(entry);
-        if (entry.isNullable() && schema.getType() != UNION) {
-            return org.apache.avro.Schema.createUnion(asList(NULL_SCHEMA, schema));
-        }
-        if (!entry.isNullable() && schema.getType() == UNION) {
-            return org.apache.avro.Schema
-                    .createUnion(schema.getTypes().stream().filter(it -> it.getType() != NULL).collect(toList()));
-        }
-        return schema;
-    }
-
-    private org.apache.avro.Schema doToSchema(final Schema.Entry entry) {
-        final Schema.Builder builder = new AvroSchemaBuilder().withType(entry.getType());
-        switch (entry.getType()) {
-        case ARRAY:
-            ofNullable(entry.getElementSchema()).ifPresent(builder::withElementSchema);
-            break;
-        case RECORD:
-            ofNullable(entry.getElementSchema()).ifPresent(s -> s.getEntries().forEach(builder::withEntry));
-            break;
-        default:
-            // no-op
-        }
-        return Unwrappable.class.cast(builder.build()).unwrap(org.apache.avro.Schema.class);
     }
 
     @Override

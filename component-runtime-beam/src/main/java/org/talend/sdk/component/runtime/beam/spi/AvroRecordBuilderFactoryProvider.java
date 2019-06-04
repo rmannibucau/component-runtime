@@ -21,7 +21,6 @@ import java.io.Serializable;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
-import org.talend.sdk.component.runtime.beam.spi.record.AvroRecordBuilder;
 import org.talend.sdk.component.runtime.beam.spi.record.AvroSchemaBuilder;
 import org.talend.sdk.component.runtime.manager.service.DefaultServices;
 import org.talend.sdk.component.runtime.manager.service.record.RecordBuilderFactoryProvider;

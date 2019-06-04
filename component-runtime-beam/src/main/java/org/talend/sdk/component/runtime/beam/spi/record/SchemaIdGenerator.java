@@ -15,9 +15,9 @@
  */
 package org.talend.sdk.component.runtime.beam.spi.record;
 
-import static java.util.stream.Collectors.toList;
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.Schema;
@@ -35,12 +35,6 @@ public class SchemaIdGenerator {
     }
 
     private static long fingerprint(final List<Schema.Field> fields) {
-        return SchemaNormalization
-                .parsingFingerprint64(Schema
-                        .createRecord(fields
-                                .stream()
-                                .map(it -> new Schema.Field(it.name(), it.schema(), it.doc(), it.defaultValue(),
-                                        it.order()))
-                                .collect(toList())));
+        return SchemaNormalization.parsingFingerprint64(Schema.createRecord(new ArrayList<>(fields)));
     }
 }
