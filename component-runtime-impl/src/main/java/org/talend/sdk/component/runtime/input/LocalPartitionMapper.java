@@ -28,6 +28,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.runtime.base.Delegated;
 import org.talend.sdk.component.runtime.base.Named;
 import org.talend.sdk.component.runtime.serialization.ContainerFinder;
@@ -60,7 +62,7 @@ public class LocalPartitionMapper extends Named implements Mapper, Delegated {
     }
 
     @Override
-    public Input create() {
+    public Input create(final JsonObject ignoredCheckpoint) {
         return Input.class.isInstance(input) ? Input.class.cast(input)
                 : new InputImpl(rootName(), name(), plugin(), input);
     }

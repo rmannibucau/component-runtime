@@ -119,7 +119,7 @@ public class BeamIOWrappingTest implements Serializable {
 
         assertFalse(mapper.isStream());
 
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertNotNull(input);
         input.start();
         assertEquals(new Sample("a"), input.next());
@@ -153,7 +153,7 @@ public class BeamIOWrappingTest implements Serializable {
         mapper.start();
         assertEquals(4, mapper.assess());
 
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertNotNull(input);
         input.start();
         assertNotNull(input.next());

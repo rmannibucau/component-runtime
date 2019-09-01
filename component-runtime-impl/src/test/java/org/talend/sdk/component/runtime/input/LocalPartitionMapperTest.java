@@ -43,7 +43,7 @@ public class LocalPartitionMapperTest {
     @Test
     void createReader() {
         final Mapper mapper = new LocalPartitionMapper("Root", "Test", "Plugin", new Component());
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertTrue(Record.class.isInstance(input.next()));
         assertNotSame(input.next(), input.next());
     }
@@ -56,7 +56,7 @@ public class LocalPartitionMapperTest {
         assertEquals("Test", mapper.name());
         assertEquals("Plugin", mapper.plugin());
 
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertNotNull(input);
     }
 

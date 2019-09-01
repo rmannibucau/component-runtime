@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.api.input.Assessor;
 import org.talend.sdk.component.api.input.Emitter;
 import org.talend.sdk.component.api.input.Split;
@@ -58,6 +60,8 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     private transient Method inputFactory;
 
     private transient Function<Long, Object[]> splitArgSupplier;
+
+    private transient Function<JsonObject, Object[]> inputFactoryArgSupplier;
 
     public PartitionMapperImpl(final String rootName, final String name, final String inputName, final String plugin,
             final boolean stream, final Serializable instance) {
@@ -87,14 +91,15 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
     }
 
     @Override
-    public Input create() {
+    public Input create(final JsonObject checkpoint) {
         lazyInit();
         // note: we can surely mutualize/cache the reflection a bit here but let's wait
         // to see it is useful before doing it,
         // java 7/8 made enough progress to probably make it smooth OOTB
-        final Serializable input = Serializable.class.cast(doInvoke(inputFactory));
+        final Serializable input = Serializable.class.cast(doInvoke(inputFactory, inputFactoryArgSupplier.apply(checkpoint)));
         if (isStream()) {
-            return new StreamingInputImpl(rootName(), inputName, plugin(), input, loadRetryConfiguration());
+            return new StreamingInputImpl(
+                    rootName(), inputName, plugin(), input, loadRetryConfiguration());
         }
         return new InputImpl(rootName(), inputName, plugin(), input);
     }
@@ -163,6 +168,23 @@ public class PartitionMapperImpl extends LifecycleImpl implements Mapper, Delega
             assessor = findMethods(Assessor.class).findFirst().get();
             split = findMethods(Split.class).findFirst().get();
             inputFactory = findMethods(Emitter.class).findFirst().get();
+
+            switch (inputFactory.getParameterCount()) {
+                case 1:
+                    if (JsonObject.class == inputFactory.getParameterTypes()[0]) {
+                        inputFactoryArgSupplier = checkpoint -> new Object[]{ checkpoint };
+                    } else {
+                        throw new IllegalArgumentException("Unsupported parameters for " + inputFactory +
+                                ", only (JsonObject checkpoint) parameter is supported.");
+                    }
+                    break;
+                case 0:
+                    inputFactoryArgSupplier = checkpoint -> NO_ARG;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Too much parameters for " + inputFactory +
+                            ", only (JsonObject checkpoint) parameter is supported.");
+            }
 
             switch (split.getParameterCount()) {
             case 1:

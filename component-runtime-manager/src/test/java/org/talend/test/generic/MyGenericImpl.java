@@ -20,6 +20,8 @@ import static java.util.Collections.singletonList;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 import org.talend.sdk.component.runtime.record.RecordImpl;
@@ -73,7 +75,7 @@ public class MyGenericImpl implements GenericComponentExtension {
             }
 
             @Override
-            public Input create() {
+            public Input create(final JsonObject ignoredCheckpoint) {
                 return new Input() {
 
                     private boolean done;

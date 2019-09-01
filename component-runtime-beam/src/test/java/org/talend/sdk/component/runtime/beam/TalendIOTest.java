@@ -39,6 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
@@ -84,7 +85,7 @@ public class TalendIOTest implements Serializable {
         final PCollection<Record> out = pipeline.apply(TalendIO.read(new TheTestMapper() {
 
             @Override
-            public Input create() {
+            public Input create(final JsonObject ignoredCheckpoint) {
                 return new BaseTestInput() {
 
                     private transient Iterator<String> chain;

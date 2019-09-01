@@ -98,7 +98,7 @@ class GenericComponentExtensionSupportTest {
             final Mapper mapper = manager
                     .findMapper("my-generic", "the-first", 1, singletonMap("a", "a->1"))
                     .orElseThrow(IllegalStateException::new);
-            final Input input = mapper.create(); // we bypass a bit the lifecycle cause we know the test component we
+            final Input input = mapper.create(null); // we bypass a bit the lifecycle cause we know the test component we
                                                  // use
             final Record next = Record.class.cast(input.next());
             assertEquals("my-generic", next.getString("plugin"));

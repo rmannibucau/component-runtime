@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 
 import org.junit.jupiter.api.Assertions;
@@ -76,7 +77,7 @@ class ComponentExtensionTest {
             }
         });
         assertFalse(mapper.isStream());
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertEquals("a", input.next());
         assertEquals("b", input.next());
         assertNull(input.next());
@@ -110,7 +111,7 @@ class ComponentExtensionTest {
             }
 
             @Override
-            public Input create() {
+            public Input create(final JsonObject ignoredCheckpoint) {
                 return new InputImpl() {
 
                     private final AtomicBoolean done = new AtomicBoolean();

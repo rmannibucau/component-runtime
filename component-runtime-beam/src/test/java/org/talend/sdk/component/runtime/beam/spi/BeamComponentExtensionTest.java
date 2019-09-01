@@ -122,7 +122,7 @@ class BeamComponentExtensionTest {
     private void assertMapper(final Mapper mapper) {
         assertNotNull(mapper);
         mapper.start();
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         input.start();
         assertEquals(new Sample("a"), input.next());
         assertEquals(new Sample("b"), input.next());

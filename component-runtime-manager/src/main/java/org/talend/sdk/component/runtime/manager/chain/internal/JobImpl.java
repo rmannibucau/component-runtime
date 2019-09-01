@@ -579,7 +579,7 @@ public class JobImpl implements Job {
                 mapper.start();
                 chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
                 chainedMapper.start();
-                input = chainedMapper.create();
+                input = chainedMapper.create(null);
                 input.start();
             } catch (final RuntimeException re) {
                 error = re;

@@ -60,7 +60,7 @@ public class PartitionMapperImplTest {
     void createStreaming() {
         final PartitionMapperImpl mapper =
                 new PartitionMapperImpl("Root", "Test", null, "Plugin", true, new SampleMapper());
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertTrue(StreamingInputImpl.class.isInstance(input));
     }
 
@@ -75,8 +75,8 @@ public class PartitionMapperImplTest {
     }
 
     private void assertInput(final Mapper mapper) {
-        assertTrue(Input.class.isInstance(mapper.create()));
-        assertTrue(Record.class.isInstance(mapper.create().next())); // it was a sample in
+        assertTrue(Input.class.isInstance(mapper.create(null)));
+        assertTrue(Record.class.isInstance(mapper.create(null).next())); // it was a sample in
     }
 
     public static class SampleMapper implements Serializable {

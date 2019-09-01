@@ -234,7 +234,7 @@ class DIBatchSimulationTest {
             }
         }
 
-        final Input inputMapper = mapperMapper.create();
+        final Input inputMapper = mapperMapper.create(null);
         inputMapper.start();
         globalMap.put("inputMapper", inputMapper);
 

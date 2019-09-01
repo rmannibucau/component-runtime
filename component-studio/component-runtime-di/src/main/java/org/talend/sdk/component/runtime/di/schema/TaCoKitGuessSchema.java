@@ -389,7 +389,7 @@ public class TaCoKitGuessSchema {
             mapper.start();
             final ChainedMapper chainedMapper = new ChainedMapper(mapper, mapper.split(mapper.assess()).iterator());
             chainedMapper.start();
-            input = chainedMapper.create();
+            input = chainedMapper.create(null);
             input.start();
             Object rowObject = input.next();
             if (rowObject == null) {

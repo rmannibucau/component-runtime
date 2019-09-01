@@ -91,7 +91,7 @@ class ComponentManagerTest {
             manager.addPlugin(plugin.getAbsolutePath());
             final Mapper mapper =
                     manager.findMapper("config", "injected", 1, emptyMap()).orElseThrow(IllegalStateException::new);
-            final Record next = Record.class.cast(mapper.create().next());
+            final Record next = Record.class.cast(mapper.create(null).next());
             assertEquals(System.getProperty("java.version", "notset-on-jvm"), next.get(String.class, "value"));
         } finally { // clean temp files
             DynamicContainerFinder.SERVICES.clear();

@@ -82,7 +82,7 @@ public class SimpleComponentRuleTest {
             }
         });
         assertFalse(mapper.isStream());
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         assertEquals("a", input.next());
         assertEquals("b", input.next());
         assertNull(input.next());
@@ -104,7 +104,7 @@ public class SimpleComponentRuleTest {
         final Mapper mapper = new LocalPartitionMapper("root", "test", "test", null) {
 
             @Override
-            public Input create() {
+            public Input create(final JsonObject ignoredCheckpoint) {
                 return new Input() {
 
                     private int remaining = 2;
@@ -178,7 +178,7 @@ public class SimpleComponentRuleTest {
             }
 
             @Override
-            public Input create() {
+            public Input create(final JsonObject ignoredCheckpoint) {
                 return new InputImpl() {
 
                     private final AtomicBoolean done = new AtomicBoolean();

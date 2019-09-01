@@ -18,6 +18,8 @@ package org.talend.sdk.component.runtime.manager.chain;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
 
@@ -41,7 +43,7 @@ public final class ChainedMapper implements Mapper {
     }
 
     @Override
-    public Input create() {
+    public Input create(final JsonObject ignoredCheckpoint) {
         return new ChainedInput(this);
     }
 

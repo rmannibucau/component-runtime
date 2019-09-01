@@ -21,6 +21,8 @@ import static java.util.Objects.requireNonNull;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.json.JsonObject;
+
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
@@ -75,7 +77,7 @@ public class QueueMapper implements Mapper, JobStateAware, Supplier<DIPipeline>,
     }
 
     @Override
-    public Input create() {
+    public Input create(final JsonObject ignoredCheckpoint) {
         return new QueueInput(this);
     }
 

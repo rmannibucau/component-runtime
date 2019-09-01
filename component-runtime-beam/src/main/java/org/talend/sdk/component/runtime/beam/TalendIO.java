@@ -15,18 +15,30 @@
  */
 package org.talend.sdk.component.runtime.beam;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.beam.sdk.annotations.Experimental.Kind.SOURCE_SINK;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonReaderFactory;
 import javax.json.bind.Jsonb;
 
 import org.apache.beam.sdk.annotations.Experimental;
 import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.coders.CoderException;
+import org.apache.beam.sdk.coders.CustomCoder;
 import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.io.UnboundedSource;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -42,7 +54,6 @@ import org.talend.sdk.component.api.processor.OutputEmitter;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.runtime.base.Lifecycle;
-import org.talend.sdk.component.runtime.beam.coder.NoCheckpointCoder;
 import org.talend.sdk.component.runtime.beam.coder.registry.SchemaRegistryCoder;
 import org.talend.sdk.component.runtime.input.Input;
 import org.talend.sdk.component.runtime.input.Mapper;
@@ -53,6 +64,7 @@ import org.talend.sdk.component.runtime.serialization.LightContainer;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Experimental(SOURCE_SINK)
 public final class TalendIO {
@@ -206,7 +218,7 @@ public final class TalendIO {
         public BoundedReader<Record> createReader(final PipelineOptions options) {
             mapper.start();
             try {
-                return new BoundedReaderImpl<>(this, mapper.create());
+                return new BoundedReaderImpl<>(this, mapper.create(null));
             } finally {
                 mapper.stop();
             }
@@ -223,14 +235,41 @@ public final class TalendIO {
         }
     }
 
+    @RequiredArgsConstructor
+    private static class JsonObjectCheckpointMark implements UnboundedSource.CheckpointMark {
+        private final String value;
+
+        @Override
+        public void finalizeCheckpoint() {
+            // no-op
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class JsonObjectCheckpointMarkCoder extends CustomCoder<JsonObjectCheckpointMark> {
+        @Override
+        public void encode(final JsonObjectCheckpointMark value, final OutputStream outStream) throws IOException {
+            if (value.value != null) {
+                outStream.write(value.value.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+
+        @Override
+        public JsonObjectCheckpointMark decode(final InputStream inStream) throws IOException {
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8))) {
+                return new JsonObjectCheckpointMark(reader.lines().collect(joining("\n")));
+            }
+        }
+    }
+
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class UnBoundedSourceImpl extends UnboundedSource<Record, UnboundedSource.CheckpointMark> {
+    private static class UnBoundedSourceImpl extends UnboundedSource<Record, JsonObjectCheckpointMark> {
 
         private Mapper mapper;
 
         @Override
-        public List<? extends UnboundedSource<Record, UnboundedSource.CheckpointMark>> split(final int desiredNumSplits,
+        public List<? extends UnboundedSource<Record, JsonObjectCheckpointMark>> split(final int desiredNumSplits,
                 final PipelineOptions options) {
             mapper.start();
             try {
@@ -242,8 +281,24 @@ public final class TalendIO {
 
         @Override
         public UnboundedReader<Record> createReader(final PipelineOptions options,
-                final UnboundedSource.CheckpointMark checkpointMark) {
-            return new UnBoundedReaderImpl<>(this, mapper.create());
+                                                    final JsonObjectCheckpointMark checkpointMark) {
+            final JsonObject checkpoint;
+            if (checkpointMark == null || checkpointMark.value == null) {
+                checkpoint = null;
+            } else {
+                try (final JsonReader reader = ContainerFinder.Instance.get()
+                        .find(mapper.plugin())
+                        .findService(JsonReaderFactory.class)
+                        .createReader(new StringReader(checkpointMark.value))) {
+                    checkpoint = reader.readObject();
+                }
+            }
+            mapper.start();
+            try {
+                return new UnBoundedReaderImpl<>(this, mapper.create(checkpoint));
+            } finally {
+                mapper.stop();
+            }
         }
 
         @Override
@@ -252,8 +307,8 @@ public final class TalendIO {
         }
 
         @Override
-        public Coder<CheckpointMark> getCheckpointMarkCoder() {
-            return new NoCheckpointCoder();
+        public Coder<JsonObjectCheckpointMark> getCheckpointMarkCoder() {
+            return new JsonObjectCheckpointMarkCoder();
         }
     }
 
@@ -294,7 +349,7 @@ public final class TalendIO {
         }
 
         @Override
-        public boolean start() throws IOException {
+        public boolean start() {
             input.start();
             return advance();
         }

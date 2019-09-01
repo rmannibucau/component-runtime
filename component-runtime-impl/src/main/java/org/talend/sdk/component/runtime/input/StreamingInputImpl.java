@@ -24,11 +24,15 @@ import java.io.Serializable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.json.JsonObject;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 public class StreamingInputImpl extends InputImpl {
+
+    private JsonObject checkpoint;
 
     private RetryConfiguration retryConfiguration;
 
@@ -39,9 +43,9 @@ public class StreamingInputImpl extends InputImpl {
     private transient Semaphore semaphore;
 
     public StreamingInputImpl(final String rootName, final String name, final String plugin,
-            final Serializable instance, final RetryConfiguration retryConfiguration) {
+                              final Serializable instance, final RetryConfiguration retryConfiguration) {
         super(rootName, name, plugin, instance);
-        shutdownHook = new Thread(() -> running.compareAndSet(true, false),
+        this.shutdownHook = new Thread(() -> running.compareAndSet(true, false),
                 getClass().getName() + "_" + rootName() + "-" + name() + "_" + hashCode());
         this.retryConfiguration = retryConfiguration;
     }
@@ -144,7 +148,7 @@ public class StreamingInputImpl extends InputImpl {
         private final RetryConfiguration retryConfiguration;
 
         StreamSerializationReplacer(final String plugin, final String component, final String name, final byte[] value,
-                final RetryConfiguration retryConfiguration) {
+                                    final RetryConfiguration retryConfiguration) {
             super(plugin, component, name, value);
             this.retryConfiguration = retryConfiguration;
         }

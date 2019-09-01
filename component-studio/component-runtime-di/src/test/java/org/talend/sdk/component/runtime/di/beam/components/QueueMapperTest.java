@@ -52,7 +52,7 @@ class QueueMapperTest {
         } catch (final NullPointerException npe) {
             // not sexy but for the test it is ok
         }
-        final Input input = mapper.create();
+        final Input input = mapper.create(null);
         final LoopState lookup = LoopState.lookup(mapper.getStateId());
         lookup.push(Json.createObjectBuilder().add("id", 1).build());
         lookup.end();

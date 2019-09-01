@@ -17,6 +17,8 @@ package org.talend.sdk.component.runtime.input;
 
 import java.util.List;
 
+import javax.json.JsonObject;
+
 import org.talend.sdk.component.runtime.base.Lifecycle;
 
 public interface Mapper extends Lifecycle {
@@ -25,7 +27,7 @@ public interface Mapper extends Lifecycle {
 
     List<Mapper> split(final long desiredSize);
 
-    Input create();
+    Input create(JsonObject checkpoint);
 
     boolean isStream();
 }

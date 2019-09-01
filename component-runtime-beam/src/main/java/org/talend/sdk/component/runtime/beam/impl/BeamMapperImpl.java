@@ -26,6 +26,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.json.JsonObject;
+
 import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.io.Read;
 import org.apache.beam.sdk.io.Source;
@@ -96,7 +98,7 @@ public class BeamMapperImpl implements Mapper, Serializable, Delegated {
     }
 
     @Override
-    public Input create() {
+    public Input create(final JsonObject ignoredCheckpoint) {
         return execute(() -> {
             try {
                 final boolean isBounded = BoundedSource.class.isInstance(flow.source);
