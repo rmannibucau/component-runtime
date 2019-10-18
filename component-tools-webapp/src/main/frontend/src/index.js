@@ -14,8 +14,12 @@
  *  limitations under the License.
  */
 
+import React from 'react';
 import cmf from '@talend/react-cmf';
 import '@talend/bootstrap-theme/src/theme/theme.scss';
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
 // code rendering
 import 'react-ace';
@@ -33,6 +37,14 @@ import 'brace/snippets/xml';
 import components from './components';
 import ComponentForm from '@talend/react-containers/lib/ComponentForm';
 import reducer from './store/reducers';
+
+i18n.use(initReactI18next).init({
+    lng: 'en',
+    react: {
+        useSuspense: false
+    }
+});
+i18n.addResourceBundle('en', 'tui-components', {});
 
 cmf.bootstrap({
   components: { ComponentForm, ...components },

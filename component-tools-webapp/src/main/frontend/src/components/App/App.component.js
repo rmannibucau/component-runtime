@@ -15,6 +15,7 @@
  */
 
 import React from 'react';
+import { withTranslation } from 'react-i18next';
 import { IconsProvider, HeaderBar, Layout, Notification, CircularProgress } from '@talend/react-components';
 
 import Menu from '../Menu';
@@ -22,7 +23,7 @@ import Detail from '../Detail';
 
 import theme from './App.scss';
 
-export default class App extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.notificationLeaveFn = this.notificationLeaveFn.bind(this);
@@ -52,3 +53,5 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default withTranslation('app')(App);
